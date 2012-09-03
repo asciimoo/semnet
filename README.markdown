@@ -36,7 +36,7 @@ var small_animals = db.q().filter('smaller', 'dog').all(); // ['ant', 'cat']
 
 ```
 
-# Testing
+### Testing
 
 ```
 > nodejs tests.js
