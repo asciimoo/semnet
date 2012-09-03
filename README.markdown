@@ -15,6 +15,15 @@ var s = require('./semnet.js');
 var db = new s.Semnet();
 ```
 
+HTML:
+
+```html
+<script type="text/javascript" src="https://raw.github.com/asciimoo/semnet/master/semnet.js"> </script>
+<script type="text/javascript">
+  var db = new Semnet();
+</script>
+```
+
 ```js
 db.add('animal');
 db.add('mammal');
