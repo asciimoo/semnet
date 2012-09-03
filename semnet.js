@@ -47,6 +47,17 @@ function QuerySet(db) {
 
 
 function Semnet() {
+
+  this.entities    = {};
+  this.relations   = {};
+  this.events      = {'add': [], 'fact': [], 'query': []};
+
+  this.on = function(event_type, method) {
+    if(this.events[event_type] === undefined) return false;
+    this.events[event_type].push(method);
+    return true;
+  };
+
   this.export = function() {
     return {entities:  this.entities
            ,relations: this.relations
@@ -54,12 +65,15 @@ function Semnet() {
   }
 
   this.import = function(json) {
-    if(json.entities) this.entities = json.entities;
+    if(json.entities) this.entities   = json.entities;
     if(json.relations) this.relations = json.relations;
   }
 
   this.add = function(name, options) {
     if(!this.entities[name]) this.entities[name] = {};
+    for(e in this.events.add) {
+      this.events.add[e](name);
+    }
     if(!options) return;
     this.relations[name] = {transitive : options.transitive?true:false
                            ,opposite   : options.opposite?options.opposite:false
@@ -72,12 +86,16 @@ function Semnet() {
 
   this.q = function() {
     var query = new QuerySet(this);
+    for(e in this.events.query) {
+      this.events.query[e](query);
+    }
     return query;
   }
 
   this.fact = function(entity, relation_name, entitx) {
     if(!this.entities[entity]) this.add(entity);
     if(!this.entities[entitx]) this.add(entitx);
+    //TODO check relation existence
     var relation = this.relations[relation_name];
     if(!this.entities[entity][relation_name]) {
       this.entities[entity][relation_name] = [entitx];
@@ -103,10 +121,11 @@ function Semnet() {
         this.fact(entitx, relation.opposite, relateds[i]);
       }
     }
+    for(e in this.events.fact) {
+      this.events.fact[e](entity, relation_name, entitx);
+    }
   };
 
-  this.entities  = {};
-  this.relations = {};
   this.add('is', {opposite: 'contains', transitive: true});
 }
 
