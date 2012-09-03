@@ -43,6 +43,10 @@ db.fact('lion', 'is', 'mammal');
 var big_mammals   = db.q().filter('is', 'mammal').filter('bigger', 'ant').all(); // ['lion']
 var small_animals = db.q().filter('smaller', 'dog').all(); // ['ant', 'cat']
 
+var my_query = db.q();
+
+my_query.filter('is', 'animal').or(db.q().filter('smaller', 'lion')).all(); // ['cat', 'ant', 'mammal', 'lion']
+
 ```
 
 ### Testing
