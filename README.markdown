@@ -3,7 +3,7 @@ SEMNET
 
 ### Description
 
-Basic semantic network - javascript implementation
+Basic semantic network - javascript implementation.
 Supports transitive relations.
 'is' and 'contains' are default transitive relations.
 
