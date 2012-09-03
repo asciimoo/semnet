@@ -29,6 +29,7 @@ function QuerySet(db) {
   return this;
 }
 
+
 function Semnet() {
   this.export = function() {
     return {entities:  this.entities
@@ -91,8 +92,6 @@ function Semnet() {
   this.entities  = {};
   this.relations = {};
   this.add('is', {opposite: 'contains', transitive: true});
-
-  return this;
 }
 
 
