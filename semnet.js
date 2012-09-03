@@ -1,30 +1,46 @@
 
 function QuerySet(db) {
+
+  this.db    = db;
+  this.query = {'and': {}, '_or': []};
+
   this.filter = function(relation, entity) {
-      if(this.query[relation]) this.query[relation].push(entity);
-      else this.query[relation] = [entity];
-      return this;
-  }
+    if(this.query.and[relation]) this.query.and[relation].push(entity);
+    else this.query.and[relation] = [entity];
+    return this;
+  };
+
+  this.or = function(query_set) {
+    this.query._or.push(query_set);
+    return this;
+  };
 
   this.all = function() {
-    var ret = [];
+    var ret_set = {};
+    for(query in this.query._or) {
+      var entities = this.query._or[query].all();
+      for(entity in entities) {
+          ret_set[entities[entity]] = true;
+      }
+    }
     for(ent in this.db.entities) {
       var loop_count = 0, match_count = 0
-      for(relation in this.query) {
-        for(entity in this.query[relation]) {
+      for(relation in this.query.and) {
+        for(entity in this.query.and[relation]) {
           loop_count++;
-          if(this.db.entities[ent][relation] && this.db.entities[ent][relation].indexOf(this.query[relation][entity]) != -1) {
+          if(this.db.entities[ent][relation] && this.db.entities[ent][relation].indexOf(this.query.and[relation][entity]) != -1) {
               match_count++;
           }
         }
       }
-      if(match_count == loop_count) ret.push(ent);
+      if(match_count == loop_count) ret_set[ent] = true;
+    }
+    var ret = [];
+    for(entity in ret_set) {
+      ret.push(entity);
     }
     return ret;
   };
-
-  this.query = {};
-  this.db    = db;
 
   return this;
 }
@@ -60,8 +76,8 @@ function Semnet() {
   }
 
   this.fact = function(entity, relation_name, entitx) {
-    if(!this.entities[entity]) this.add_entity(entity);
-    if(!this.entities[entitx]) this.add_entity(entitx);
+    if(!this.entities[entity]) this.add(entity);
+    if(!this.entities[entitx]) this.add(entitx);
     var relation = this.relations[relation_name];
     if(!this.entities[entity][relation_name]) {
       this.entities[entity][relation_name] = [entitx];
@@ -98,7 +114,4 @@ function Semnet() {
 if(typeof require != 'undefined') {
   module.exports.Semnet = Semnet;
   module.exports.QuerySet = QuerySet;
-  //var db = new Semnet();
-  //var repl = require('repl');
-  //repl.start().context.db = db;
 }
