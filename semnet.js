@@ -96,7 +96,7 @@ function Semnet() {
 }
 
 
-if(require != undefined) {
+if(typeof require != 'undefined') {
   module.exports.Semnet = Semnet;
   module.exports.QuerySet = QuerySet;
   //var db = new Semnet();
