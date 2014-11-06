@@ -65,8 +65,20 @@ function Semnet() {
   }
 
   this.import = function(json) {
-    if(json.entities) this.entities   = json.entities;
+    if(json.entities) this.entities = json.entities;
     if(json.relations) this.relations = json.relations;
+
+    for (var entityName in json.entities) {
+      // reconstruct facts
+      var relations = Object.keys(json.relations).filter(function (relation) {
+        return json.entities[entityName].hasOwnProperty(relation);
+      });
+      relations.forEach(function (relation) {
+        json.entities[entityName][relation].forEach(function(relatedEntity) {
+          this.fact(entityName, relation, relatedEntity);
+        }, this);
+      }, this);
+    }
   }
 
   this.add = function(name, options) {

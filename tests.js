@@ -1,7 +1,7 @@
 var semnet = require('./semnet.js');
 var util = require('util');
 
-assert_inspected = function(a, b) {
+var assert_inspected = function(a, b) {
   return console.assert(util.inspect(a) === util.inspect(b));
 };
 
@@ -37,5 +37,44 @@ function test() {
   return db;
 }
 
-db = test();
+var db = test();
 console.log('[+] Tests passed');
+
+function importTest() {
+
+  var dummyData = {
+    relations : {
+      predates : {
+        transitive : true,
+        opposite : 'isPredatedBy'
+      }
+    },
+    entities : {
+      animal : {},
+      trilobite : {
+        is : ['animal'],
+        predates : ['stegosaurus']
+      },
+      stegosaurus : {
+        is : ['animal'],
+        predates : ['cat', 'dog']
+      },
+      cat : {
+        is : ['animal'],
+      },
+      dog : {
+        is : ['animal']
+      }
+    }
+  };
+
+  var db = new semnet.Semnet();
+  db.import(dummyData);
+
+  // check that relationships have been applied correctly
+  assert_inspected(db.q().filter('is', 'animal').filter('isPredatedBy', 'trilobite').all(), ['stegosaurus', 'cat', 'dog']);
+  assert_inspected(db.q().filter('is', 'animal').filter('predates', 'dog').all(), ['trilobite', 'stegosaurus']);
+}
+
+db = importTest();
+console.log('[+] Import tests passed');
